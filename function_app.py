@@ -134,6 +134,13 @@ def process_docx_blob(blob_service_client: BlobServiceClient, blob_path: str):
     def add_section(title, subtitle, urls):
         if not urls:
             return
+        if len(urls) > 1:
+            if title == "3. számú melléklet / Annex 3":
+                subtitle = "Fotók / Images"
+            elif title == "4. számú melléklet / Annex 4":
+                subtitle = "Képernyőfotók a Fotók jogsértő felhasználásáról / Print screens of the infringing use of the Images"
+
+
         doc.add_page_break()
         p_title = doc.add_paragraph()
         p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -167,7 +174,7 @@ def process_docx_blob(blob_service_client: BlobServiceClient, blob_path: str):
                 doc.add_paragraph("[INSERT ERROR]")
 
     add_section("3. számú melléklet / Annex 3", "Fotó / Image", catalog_urls)
-    add_section("4. számú melléklet / Annex 4", "Képernyőfotó a Fotó jogsértő felhasználásáról / Print screens of the infringing use of the Image", screen_urls)
+    add_section("4. számú melléklet / Annex 4", "Képernyőfotó a Fotó jogsértő felhasználásáról / Print screen of the infringing use of the Image", screen_urls)
 
     output_stream = io.BytesIO()
     doc.save(output_stream)
