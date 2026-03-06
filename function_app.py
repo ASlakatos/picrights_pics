@@ -11,6 +11,7 @@ import requests
 from docx import Document
 from docx.shared import Inches
 from azure.storage.blob import BlobServiceClient
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 app = func.FunctionApp()
 
@@ -130,27 +131,44 @@ def process_docx_blob(blob_service_client: BlobServiceClient, blob_path: str):
 
     doc = Document(io.BytesIO(docx_bytes))
 
-    def add_section(title, urls):
+    def add_section(title, subtitle, urls):
         if not urls:
             return
-
         doc.add_page_break()
-        doc.add_heading(title, level=1)
+        p_title = doc.add_paragraph(title)
+        p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        doc.add_paragraph(subtitle)
 
-        for i, url in enumerate(urls, 1):
-            doc.add_paragraph(f"{i}. {url}")
+        parts = title.split('/')
+        p_title.add_run(parts[0].strip()).bold = True
+        p_title.add_run(" / ")
+        p_title.add_run(parts[1].strip()).bold = True
+        p_title.runs[-1].italic = True
+
+        p_sub = doc.add_paragraph()
+        p_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        
+        sub_parts = subtitle.split('/')
+        p_sub.add_run(sub_parts[0].strip()).bold = True
+        p_sub.add_run(" / ")
+        p_sub.add_run(sub_parts[1].strip()).bold = True
+        p_sub.runs[-1].italic = True
+        
+        for url in urls:
             img = download_bytes(url)
             if not img:
                 doc.add_paragraph("[IMAGE ERROR]")
                 continue
             try:
-                doc.add_picture(io.BytesIO(img), width=Inches(5.5))
+                p_img = doc.add_paragraph()
+                p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                run = p_img.add_run()
+                run.add_picture(io.BytesIO(img), width=Inches(5.5))
             except Exception as ex:
-                logging.error(f"Insert failed {url}: {ex}")
                 doc.add_paragraph("[INSERT ERROR]")
 
-    add_section("Catalog images", catalog_urls)
-    add_section("Screencaptures", screen_urls)
+    add_section("3. számú melléklet / Annex 3", "Fotó / Image", catalog_urls)
+    add_section("4. számú melléklet / Annex 4", "Képernyőfotó a Fotó jogsértő felhasználásáról / Print screens of the infringing use of the Image", screen_urls)
 
     output_stream = io.BytesIO()
     doc.save(output_stream)
