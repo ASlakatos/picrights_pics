@@ -135,9 +135,8 @@ def process_docx_blob(blob_service_client: BlobServiceClient, blob_path: str):
         if not urls:
             return
         doc.add_page_break()
-        p_title = doc.add_paragraph(title)
+        p_title = doc.add_paragraph()
         p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        doc.add_paragraph(subtitle)
 
         parts = title.split('/')
         p_title.add_run(parts[0].strip()).bold = True
