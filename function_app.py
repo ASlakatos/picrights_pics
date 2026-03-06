@@ -172,20 +172,17 @@ def ProcessDocxEvent(event: func.EventGridEvent):
     """
     Ezt fogja tudni kiválasztani az Event Subscription 'Azure Function' endpointként.
     """
-    try:
-        container, blob_path = parse_blob_path_from_event(event)
-        logging.info(f"EventGrid received container={container}, blob={blob_path}")
 
-        # csak az input/docs-ra reagáljunk
-        if container != INPUT_CONTAINER or not blob_path.startswith("docs/"):
-            logging.info("Event ignored (not input/docs)")
-            return
+    container, blob_path = parse_blob_path_from_event(event)
+    logging.info(f"EventGrid received container={container}, blob={blob_path}")
 
-        conn_str = os.environ[STORAGE_CONN_SETTING]
-        blob_service_client = BlobServiceClient.from_connection_string(conn_str)
+    # csak az input/docs-ra reagáljunk
+    if container != INPUT_CONTAINER or not blob_path.startswith("docs/"):
+        logging.info("Event ignored (not input/docs)")
+        return
 
-        process_docx_blob(blob_service_client, blob_path)
+    conn_str = os.environ[STORAGE_CONN_SETTING]
+    blob_service_client = BlobServiceClient.from_connection_string(conn_str)
 
-    except Exception as ex:
-        logging.exception(f"ProcessDocxEvent failed: {ex}")
-        raise
+    process_docx_blob(blob_service_client, blob_path)
+
