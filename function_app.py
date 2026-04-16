@@ -18,7 +18,7 @@ app = func.FunctionApp()
 
 SHEET_NAME = "Merged"
 ID_COLUMN = "ID Case"
-CATALOG_COL = "Catalog Image Path "
+CATALOG_COL = "Catalog Image Path"
 SCREEN_COL = "Screencapture Path"
 
 INPUT_CONTAINER = "input"
